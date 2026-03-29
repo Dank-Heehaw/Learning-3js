@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const sceneRoot = document.querySelector("#scene-root");
+const resetViewBtn = document.querySelector("#reset-view-btn");
 
 if (!sceneRoot) {
   throw new Error("Scene root element '#scene-root' was not found.");
@@ -25,6 +26,8 @@ controls.dampingFactor = 0.06;
 controls.minDistance = 1.5;
 controls.maxDistance = 8;
 controls.target.set(0, 0.2, 0);
+const initialCameraPosition = new THREE.Vector3(1.8, 1.4, 3.4);
+const initialControlTarget = new THREE.Vector3(0, 0.2, 0);
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
 scene.add(ambientLight);
@@ -98,8 +101,15 @@ function onPointerDown(event) {
   }
 }
 
+function resetView() {
+  camera.position.copy(initialCameraPosition);
+  controls.target.copy(initialControlTarget);
+  controls.update();
+}
+
 window.addEventListener("resize", updateSize);
 renderer.domElement.addEventListener("pointerdown", onPointerDown);
+resetViewBtn?.addEventListener("click", resetView);
 updateSize();
 
 const clock = new THREE.Clock();

@@ -59,3 +59,19 @@ body {
   color: #cbd5e1;
   font-size: 0.9rem;
 }
+
+#reset-view-btn {
+  margin-top: 0.8rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid rgb(148 163 184 / 45%);
+  border-radius: 0.5rem;
+  background: rgb(30 41 59 / 95%);
+  color: #e2e8f0;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+#reset-view-btn:hover {
+  background: rgb(51 65 85 / 95%);
+}

@@ -5,6 +5,7 @@
   "description": "INM420 Three.js interactive demo",
   "type": "module",
   "scripts": {
+    "start": "vite --open",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
