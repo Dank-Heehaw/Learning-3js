@@ -18,6 +18,13 @@ export const DEFAULT_MODEL_MATERIAL_OVERRIDES = {
 // Edit this map to control per-model display settings.
 // Keys can be either full file name (e.g. "ship_in_clouds.glb")
 // or base name without extension (e.g. "ship_in_clouds").
+// Each entry can override:
+// - label
+// - backgroundColor
+// - frame
+// - lighting
+// - renderOverrides
+// - materialOverrides
 export const MODEL_OVERRIDES_BY_FILE = {
   "concerto.glb": {
     label: "Concerto",

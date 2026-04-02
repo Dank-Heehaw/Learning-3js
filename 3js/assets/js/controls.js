@@ -51,6 +51,7 @@ export function createControls(camera, domElement) {
     resetAnimation.toTarget.copy(baseline.target);
   }
 
+  // Easing keeps reset motion smooth while still feeling responsive.
   function easeOutCubic(t) {
     return 1 - Math.pow(1 - t, 3);
   }
@@ -91,6 +92,7 @@ export function createControls(camera, domElement) {
   }
 
   controls.addEventListener("start", () => {
+    // User input should always take priority over scripted camera motion.
     cancelResetAnimation();
   });
 

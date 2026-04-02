@@ -2,7 +2,11 @@ import "../../../src/scss/style.scss";
 import { createControls, deriveZoomLimitsFromRadius } from "./controls.js";
 import { MODEL_CATALOG, loadModelAndFrame } from "./model-pipeline.js";
 import { createSceneCore } from "./scene-core.js";
-import { DEFAULT_MODEL_LIGHTING, DEFAULT_MODEL_RENDER_OVERRIDES } from "./model-overrides.js";
+import {
+  DEFAULT_MODEL_BACKGROUND,
+  DEFAULT_MODEL_LIGHTING,
+  DEFAULT_MODEL_RENDER_OVERRIDES
+} from "./model-overrides.js";
 
 const sceneRoot = document.querySelector("#scene-root");
 const resetViewBtn = document.querySelector("#reset-view-btn");
@@ -26,18 +30,19 @@ if (!modelPickerBtn || !modelPickerList) {
 const core = createSceneCore(sceneRoot);
 const controlsApi = createControls(core.camera, core.renderer.domElement);
 let activeLoadId = 0;
+const NOOP_ANIMATION_CONTROLLER = {
+  update() {},
+  stop() {}
+};
 const FALLBACK_SELECTION = {
   id: "__fallback__",
   label: "Fallback Primitive",
-  backgroundColor: "#7a818c",
+  backgroundColor: DEFAULT_MODEL_BACKGROUND,
   lighting: DEFAULT_MODEL_LIGHTING,
   renderOverrides: DEFAULT_MODEL_RENDER_OVERRIDES
 };
 let currentModelId = MODEL_CATALOG[0]?.id ?? FALLBACK_SELECTION.id;
-let currentAnimationController = {
-  update() {},
-  stop() {}
-};
+let currentAnimationController = NOOP_ANIMATION_CONTROLLER;
 let previousFrameTimeMs = performance.now();
 
 function parseHexColor(hex) {
@@ -229,11 +234,13 @@ function showControlsOverview(durationMs = 4200) {
 async function loadSelectedModel(modelId) {
   const selectedModel = getModelById(modelId);
   const loadId = ++activeLoadId;
+
+  // Ensure old mixers/actions are stopped before replacing scene content.
   currentAnimationController.stop();
-  currentAnimationController = { update() {}, stop() {} };
+  currentAnimationController = NOOP_ANIMATION_CONTROLLER;
   currentModelId = selectedModel.id;
-  core.setBackgroundColor(selectedModel.backgroundColor ?? "#7a818c");
-  setHudTitleContrastColor(selectedModel.backgroundColor ?? "#7a818c");
+  core.setBackgroundColor(selectedModel.backgroundColor ?? DEFAULT_MODEL_BACKGROUND);
+  setHudTitleContrastColor(selectedModel.backgroundColor ?? DEFAULT_MODEL_BACKGROUND);
   core.setLightingLevels(selectedModel.lighting ?? DEFAULT_MODEL_LIGHTING);
   core.setRenderStyle(selectedModel.renderOverrides ?? DEFAULT_MODEL_RENDER_OVERRIDES);
   syncPickerSelection();
@@ -261,8 +268,8 @@ async function loadSelectedModel(modelId) {
     const zoomLimits = deriveZoomLimitsFromRadius(frame.radius);
     controlsApi.setZoomLimits(zoomLimits.minDistance, zoomLimits.maxDistance);
     setBarModelText(frame.modelName ?? selectedModel.label);
-    core.setBackgroundColor(frame.backgroundColor ?? selectedModel.backgroundColor ?? "#7a818c");
-    setHudTitleContrastColor(frame.backgroundColor ?? selectedModel.backgroundColor ?? "#7a818c");
+    core.setBackgroundColor(frame.backgroundColor ?? selectedModel.backgroundColor ?? DEFAULT_MODEL_BACKGROUND);
+    setHudTitleContrastColor(frame.backgroundColor ?? selectedModel.backgroundColor ?? DEFAULT_MODEL_BACKGROUND);
     core.setLightingLevels(frame.lighting ?? selectedModel.lighting ?? DEFAULT_MODEL_LIGHTING);
     core.setRenderStyle(
       frame.renderOverrides ?? selectedModel.renderOverrides ?? DEFAULT_MODEL_RENDER_OVERRIDES

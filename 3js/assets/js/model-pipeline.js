@@ -58,6 +58,7 @@ function buildModelCatalog() {
 
 export const MODEL_CATALOG = buildModelCatalog();
 
+// Last-resort geometry if both local and remote fallback models fail.
 function createPrimitiveFallbackModel() {
   const fallback = new THREE.Group();
 
@@ -96,6 +97,8 @@ async function loadGltfWithProgress(loader, url, onProgress) {
   return gltf;
 }
 
+// Bounds are computed from renderable meshes only so empty/helper nodes
+// in exported scenes do not skew centering and framing.
 function computeRenderableBounds(model) {
   model.updateMatrixWorld(true);
 
@@ -233,6 +236,8 @@ function findNamedNode(model, names) {
   return bestMatch;
 }
 
+// Camera markers authored in DCC tools (e.g. Blender empties)
+// allow artist-controlled startup framing per model.
 function applyMarkerFrame(model, camera, controls, baseFrame) {
   const targetNode = findNamedNode(model, ["cam_target", "CAM_TARGET", "camTarget"]);
   const startNode = findNamedNode(model, ["cam_start", "CAM_START", "camStart"]);
@@ -266,6 +271,8 @@ function applyMarkerFrame(model, camera, controls, baseFrame) {
   };
 }
 
+// Keeps clip playback lifecycle encapsulated so model switches
+// can stop old actions cleanly.
 function createAnimationController(model, animationClips = []) {
   if (!animationClips.length) {
     return {
@@ -346,6 +353,7 @@ export async function loadModelAndFrame({ modelRoot, camera, controls, modelStat
     animationClips = gltf.animations ?? [];
     setStatus(`${selectedModel.label} loaded`);
   } catch (error) {
+    // Fallback chain: selected local model -> Khronos Duck -> primitive mesh.
     try {
       setStatus(`Could not load ${selectedModel.label}. Loading Khronos Duck...`);
       const duckGltf = await loadGltfWithProgress(loader, KHRONOS_DUCK_GLB_URL, undefined);

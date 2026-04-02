@@ -22,6 +22,7 @@ export function createSceneCore(sceneRoot) {
 
   const composer = new EffectComposer(renderer);
   const renderPass = new RenderPass(scene, camera);
+  // Bloom is always available; per-model overrides control intensity.
   const bloomPass = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.8, 0.65, 0.2);
   composer.addPass(renderPass);
   composer.addPass(bloomPass);
