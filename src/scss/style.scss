@@ -6,6 +6,7 @@
   --glass-bg: linear-gradient(138deg, rgb(255 255 255 / 18%), rgb(255 255 255 / 7%));
   --glass-shadow: 0 14px 36px rgb(2 6 23 / 46%);
   --glass-filter: blur(18px) saturate(130%);
+  --hud-title-color: #ffffff;
 }
 
 *,
@@ -134,17 +135,18 @@ body {
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--hud-title-color);
 }
 
 .hud-model-name {
   margin: 0.12rem 0 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #f8fafc;
+  color: var(--hud-title-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
 }
 
 .hud-actions {

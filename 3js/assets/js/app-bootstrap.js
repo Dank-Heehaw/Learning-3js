@@ -26,12 +26,59 @@ if (!modelPickerBtn || !modelPickerList) {
 const core = createSceneCore(sceneRoot);
 const controlsApi = createControls(core.camera, core.renderer.domElement);
 let activeLoadId = 0;
-let currentModelId = MODEL_CATALOG[0]?.id ?? "fallback";
+const FALLBACK_SELECTION = {
+  id: "__fallback__",
+  label: "Fallback Primitive",
+  backgroundColor: "#7a818c",
+  lighting: DEFAULT_MODEL_LIGHTING,
+  renderOverrides: DEFAULT_MODEL_RENDER_OVERRIDES
+};
+let currentModelId = MODEL_CATALOG[0]?.id ?? FALLBACK_SELECTION.id;
 let currentAnimationController = {
   update() {},
   stop() {}
 };
 let previousFrameTimeMs = performance.now();
+
+function parseHexColor(hex) {
+  const normalized = hex.replace("#", "").trim();
+  if (normalized.length === 3) {
+    const r = parseInt(normalized[0] + normalized[0], 16);
+    const g = parseInt(normalized[1] + normalized[1], 16);
+    const b = parseInt(normalized[2] + normalized[2], 16);
+    return { r, g, b };
+  }
+  if (normalized.length === 6) {
+    const r = parseInt(normalized.slice(0, 2), 16);
+    const g = parseInt(normalized.slice(2, 4), 16);
+    const b = parseInt(normalized.slice(4, 6), 16);
+    return { r, g, b };
+  }
+  return null;
+}
+
+function toLinearSrgb(channel) {
+  const c = channel / 255;
+  if (c <= 0.04045) {
+    return c / 12.92;
+  }
+  return Math.pow((c + 0.055) / 1.055, 2.4);
+}
+
+function getRelativeLuminance({ r, g, b }) {
+  return 0.2126 * toLinearSrgb(r) + 0.7152 * toLinearSrgb(g) + 0.0722 * toLinearSrgb(b);
+}
+
+function setHudTitleContrastColor(backgroundColor) {
+  const parsed = parseHexColor(backgroundColor ?? "");
+  if (!parsed) {
+    document.documentElement.style.setProperty("--hud-title-color", "#ffffff");
+    return;
+  }
+  const luminance = getRelativeLuminance(parsed);
+  const titleColor = luminance > 0.35 ? "#0b1220" : "#ffffff";
+  document.documentElement.style.setProperty("--hud-title-color", titleColor);
+}
 
 function bindResetButton() {
   resetViewBtn?.addEventListener("click", () => {
@@ -54,7 +101,7 @@ function bindTurntableButton() {
 }
 
 function getModelById(modelId) {
-  return MODEL_CATALOG.find((entry) => entry.id === modelId) ?? MODEL_CATALOG[0];
+  return MODEL_CATALOG.find((entry) => entry.id === modelId) ?? MODEL_CATALOG[0] ?? FALLBACK_SELECTION;
 }
 
 function closeModelPicker() {
@@ -90,13 +137,20 @@ function setLoadingState(isLoading) {
   if (turntableBtn) {
     turntableBtn.disabled = isLoading;
   }
-  modelPickerBtn.disabled = isLoading;
+  modelPickerBtn.disabled = isLoading || MODEL_CATALOG.length === 0;
   modelPickerBtn.classList.toggle("is-loading", isLoading);
   modelStatus?.classList.toggle("is-loading", isLoading);
   sceneLoader?.classList.toggle("is-hidden", !isLoading);
 }
 
 function buildModelPicker() {
+  if (MODEL_CATALOG.length === 0) {
+    modelPickerList.innerHTML = "";
+    modelPickerBtn.textContent = "No Models";
+    modelPickerBtn.disabled = true;
+    return;
+  }
+
   const optionsMarkup = MODEL_CATALOG.map(
     (model) => `
       <li role="presentation">
@@ -179,6 +233,7 @@ async function loadSelectedModel(modelId) {
   currentAnimationController = { update() {}, stop() {} };
   currentModelId = selectedModel.id;
   core.setBackgroundColor(selectedModel.backgroundColor ?? "#7a818c");
+  setHudTitleContrastColor(selectedModel.backgroundColor ?? "#7a818c");
   core.setLightingLevels(selectedModel.lighting ?? DEFAULT_MODEL_LIGHTING);
   core.setRenderStyle(selectedModel.renderOverrides ?? DEFAULT_MODEL_RENDER_OVERRIDES);
   syncPickerSelection();
@@ -207,6 +262,7 @@ async function loadSelectedModel(modelId) {
     controlsApi.setZoomLimits(zoomLimits.minDistance, zoomLimits.maxDistance);
     setBarModelText(frame.modelName ?? selectedModel.label);
     core.setBackgroundColor(frame.backgroundColor ?? selectedModel.backgroundColor ?? "#7a818c");
+    setHudTitleContrastColor(frame.backgroundColor ?? selectedModel.backgroundColor ?? "#7a818c");
     core.setLightingLevels(frame.lighting ?? selectedModel.lighting ?? DEFAULT_MODEL_LIGHTING);
     core.setRenderStyle(
       frame.renderOverrides ?? selectedModel.renderOverrides ?? DEFAULT_MODEL_RENDER_OVERRIDES

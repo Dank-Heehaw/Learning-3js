@@ -27,17 +27,6 @@ This project is a learning exercise for INM420 to practice rendering and interac
 2. Start development server:
 
    ```bash
-   npm run dev
+   npm start
    ```
 
-3. Build production bundle:
-
-   ```bash
-   npm run build
-   ```
-
-4. Preview production build:
-
-   ```bash
-   npm run preview
-   ```
