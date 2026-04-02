@@ -4,17 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>INM420 | Three.js Interactive Demo</title>
-    <script type="module" crossorigin src="/Learning-3js/assets/index-BuJvGoUn.js"></script>
-    <link rel="stylesheet" crossorigin href="/Learning-3js/assets/index-D-amWC3S.css">
+    <script type="module" crossorigin src="/Learning-3js/assets/js/index-BOPvrKXc.js"></script>
+    <link rel="stylesheet" crossorigin href="/Learning-3js/assets/css/index-D5NR4HyI.css">
   </head>
   <body>
     <main class="app">
       <header class="hud">
-        <h1>Three.js Learning Demo</h1>
-        <p>Drag to orbit, scroll to zoom, click the object to interact.</p>
+        <h1>Three.js Product Showcase</h1>
+        <p>Drag to orbit, scroll to zoom, and click glowing hotspots to inspect features.</p>
+        <p id="model-status" class="model-status" aria-live="polite">Loading showcase model...</p>
         <button id="reset-view-btn" type="button">Reset View</button>
       </header>
       <div id="scene-root" aria-label="Interactive 3D scene"></div>
+      <aside id="hotspot-tooltip" class="hotspot-tooltip is-hidden" aria-live="polite">
+        <h2 id="hotspot-title">Feature</h2>
+        <p id="hotspot-description">Click a hotspot to inspect this part of the product.</p>
+      </aside>
     </main>
   </body>
 </html>
