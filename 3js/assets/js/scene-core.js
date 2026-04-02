@@ -2,8 +2,9 @@ import * as THREE from "three";
 
 export function createSceneCore(sceneRoot) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#2b500b");
-  scene.fog = new THREE.Fog(0x0b1220, 6, 24);
+  const defaultBackground = new THREE.Color("#2b500b");
+  scene.background = defaultBackground.clone();
+  scene.fog = new THREE.Fog(defaultBackground.clone().multiplyScalar(0.58), 6, 24);
 
   const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 300);
   camera.position.set(2.4, 1.6, 4.2);
@@ -27,19 +28,6 @@ export function createSceneCore(sceneRoot) {
   fillLight.position.set(-3, 2.5, -4);
   scene.add(fillLight);
 
-  const ground = new THREE.Mesh(
-    new THREE.CircleGeometry(10, 72),
-    new THREE.MeshStandardMaterial({
-      color: 0x0f172a,
-      roughness: 0.95,
-      metalness: 0.05
-    })
-  );
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -1.1;
-  ground.receiveShadow = true;
-  scene.add(ground);
-
   const modelRoot = new THREE.Group();
   scene.add(modelRoot);
 
@@ -55,12 +43,19 @@ export function createSceneCore(sceneRoot) {
     renderer.render(scene, camera);
   }
 
+  function setBackgroundColor(colorValue) {
+    const color = new THREE.Color(colorValue);
+    scene.background = color;
+    scene.fog.color.copy(color).multiplyScalar(0.58);
+  }
+
   return {
     scene,
     camera,
     renderer,
     modelRoot,
     updateSize,
-    render
+    render,
+    setBackgroundColor
   };
 }
