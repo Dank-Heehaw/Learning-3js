@@ -2,15 +2,18 @@ import "../../../src/scss/style.scss";
 import { createControls, deriveZoomLimitsFromRadius } from "./controls.js";
 import { MODEL_CATALOG, loadModelAndFrame } from "./model-pipeline.js";
 import { createSceneCore } from "./scene-core.js";
+import { DEFAULT_MODEL_LIGHTING, DEFAULT_MODEL_RENDER_OVERRIDES } from "./model-overrides.js";
 
 const sceneRoot = document.querySelector("#scene-root");
 const resetViewBtn = document.querySelector("#reset-view-btn");
+const turntableBtn = document.querySelector("#turntable-btn");
 const modelStatus = document.querySelector("#model-status");
 const displayedModelName = document.querySelector("#displayed-model-name");
 const modelPickerBtn = document.querySelector("#model-picker-btn");
 const modelPickerList = document.querySelector("#model-picker-list");
 const sceneLoader = document.querySelector("#scene-loader");
 const sceneLoaderText = document.querySelector("#scene-loader-text");
+const controlsOverview = document.querySelector("#controls-overview");
 
 if (!sceneRoot) {
   throw new Error("Scene root element '#scene-root' was not found.");
@@ -24,10 +27,29 @@ const core = createSceneCore(sceneRoot);
 const controlsApi = createControls(core.camera, core.renderer.domElement);
 let activeLoadId = 0;
 let currentModelId = MODEL_CATALOG[0]?.id ?? "fallback";
+let currentAnimationController = {
+  update() {},
+  stop() {}
+};
+let previousFrameTimeMs = performance.now();
 
 function bindResetButton() {
   resetViewBtn?.addEventListener("click", () => {
-    controlsApi.resetToBaseline();
+    controlsApi.resetToBaseline({ animated: true, durationMs: 900 });
+  });
+}
+
+function bindTurntableButton() {
+  if (!turntableBtn) {
+    return;
+  }
+
+  turntableBtn.addEventListener("click", () => {
+    const nextState = !controlsApi.isTurntableEnabled();
+    controlsApi.setTurntableEnabled(nextState);
+    turntableBtn.classList.toggle("is-active", nextState);
+    turntableBtn.setAttribute("aria-pressed", String(nextState));
+    turntableBtn.textContent = nextState ? "Turntable On" : "Turntable";
   });
 }
 
@@ -64,6 +86,9 @@ function setBarModelText(modelName) {
 function setLoadingState(isLoading) {
   if (resetViewBtn) {
     resetViewBtn.disabled = isLoading;
+  }
+  if (turntableBtn) {
+    turntableBtn.disabled = isLoading;
   }
   modelPickerBtn.disabled = isLoading;
   modelPickerBtn.classList.toggle("is-loading", isLoading);
@@ -137,11 +162,25 @@ function setupResizeHandling() {
   handleResize();
 }
 
+function showControlsOverview(durationMs = 4200) {
+  if (!controlsOverview) {
+    return;
+  }
+  controlsOverview.classList.remove("is-hidden");
+  window.setTimeout(() => {
+    controlsOverview.classList.add("is-hidden");
+  }, durationMs);
+}
+
 async function loadSelectedModel(modelId) {
   const selectedModel = getModelById(modelId);
   const loadId = ++activeLoadId;
+  currentAnimationController.stop();
+  currentAnimationController = { update() {}, stop() {} };
   currentModelId = selectedModel.id;
   core.setBackgroundColor(selectedModel.backgroundColor ?? "#7a818c");
+  core.setLightingLevels(selectedModel.lighting ?? DEFAULT_MODEL_LIGHTING);
+  core.setRenderStyle(selectedModel.renderOverrides ?? DEFAULT_MODEL_RENDER_OVERRIDES);
   syncPickerSelection();
   setLoadingState(true);
   setBarModelText(selectedModel.label);
@@ -158,14 +197,20 @@ async function loadSelectedModel(modelId) {
     });
 
     if (loadId !== activeLoadId) {
+      frame.animationController?.stop?.();
       return;
     }
 
+    currentAnimationController = frame.animationController ?? currentAnimationController;
     controlsApi.setBaseline(frame.cameraPosition, frame.target);
     const zoomLimits = deriveZoomLimitsFromRadius(frame.radius);
     controlsApi.setZoomLimits(zoomLimits.minDistance, zoomLimits.maxDistance);
     setBarModelText(frame.modelName ?? selectedModel.label);
     core.setBackgroundColor(frame.backgroundColor ?? selectedModel.backgroundColor ?? "#7a818c");
+    core.setLightingLevels(frame.lighting ?? selectedModel.lighting ?? DEFAULT_MODEL_LIGHTING);
+    core.setRenderStyle(
+      frame.renderOverrides ?? selectedModel.renderOverrides ?? DEFAULT_MODEL_RENDER_OVERRIDES
+    );
   } catch (error) {
     console.error("Model load failed unexpectedly.", error);
     modelStatus.textContent = `Unable to load ${selectedModel.label}.`;
@@ -184,13 +229,19 @@ async function initModel() {
 }
 
 function animate() {
-  controlsApi.controls.update();
+  const now = performance.now();
+  const deltaSeconds = Math.min(0.1, (now - previousFrameTimeMs) / 1000);
+  previousFrameTimeMs = now;
+  currentAnimationController.update(deltaSeconds);
+  controlsApi.update();
   core.render();
   requestAnimationFrame(animate);
 }
 
 bindResetButton();
+bindTurntableButton();
 buildModelPicker();
 setupResizeHandling();
+showControlsOverview();
 initModel();
 animate();

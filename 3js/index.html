@@ -4,22 +4,51 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>INM420 | Three.js Interactive Demo</title>
-    <script type="module" crossorigin src="/Learning-3js/assets/js/index-BOPvrKXc.js"></script>
-    <link rel="stylesheet" crossorigin href="/Learning-3js/assets/css/index-D5NR4HyI.css">
   </head>
   <body>
     <main class="app">
-      <header class="hud">
-        <h1>Three.js Product Showcase</h1>
-        <p>Drag to orbit, scroll to zoom, and click glowing hotspots to inspect features.</p>
-        <p id="model-status" class="model-status" aria-live="polite">Loading showcase model...</p>
-        <button id="reset-view-btn" type="button">Reset View</button>
-      </header>
-      <div id="scene-root" aria-label="Interactive 3D scene"></div>
+      <div id="controls-overview" class="controls-overview is-hidden" role="status" aria-live="polite">
+        <h2 class="controls-overview-title">Controls</h2>
+        <p><strong>Left-click + drag:</strong> Orbit</p>
+        <p><strong>Right-click + drag:</strong> Pan</p>
+        <p><strong>Scroll:</strong> Zoom</p>
+      </div>
+      <div id="scene-loader" class="scene-loader is-hidden" role="status" aria-live="polite" aria-atomic="true">
+        <div class="scene-loader-card">
+          <div class="scene-loader-spinner" aria-hidden="true"></div>
+          <p id="scene-loader-text" class="scene-loader-text">Loading model...</p>
+        </div>
+      </div>
+      <section id="scene-root" aria-label="Interactive 3D scene"></section>
+      <footer class="hud" aria-label="Three.js controls">
+        <section class="hud-left" aria-label="Current model">
+          <p class="hud-title">3Js Demo</p>
+          <p id="displayed-model-name" class="hud-model-name">Loading model...</p>
+          <p id="model-status" class="model-status" aria-live="polite">Loading selected model...</p>
+        </section>
+        <nav class="hud-actions" aria-label="Model actions">
+          <div class="model-picker">
+            <button
+              id="model-picker-btn"
+              class="hud-btn"
+              type="button"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="model-picker-list"
+            >
+              Choose Model
+            </button>
+            <ul id="model-picker-list" class="model-picker-list is-hidden" role="listbox"></ul>
+          </div>
+          <button id="turntable-btn" class="hud-btn" type="button" aria-pressed="false">Turntable</button>
+          <button id="reset-view-btn" class="hud-btn" type="button">Reset View</button>
+        </nav>
+      </footer>
       <aside id="hotspot-tooltip" class="hotspot-tooltip is-hidden" aria-live="polite">
         <h2 id="hotspot-title">Feature</h2>
         <p id="hotspot-description">Click a hotspot to inspect this part of the product.</p>
       </aside>
-    </main>
+    </main>
+    <script type="module" src="./assets/js/app-bootstrap.js"></script>
   </body>
 </html>

@@ -1,11 +1,12 @@
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  root: "3js",
   base: "/Learning-3js/",
   build: {
-    outDir: "3js",
+    outDir: "dist",
     assetsDir: "assets",
-    emptyOutDir: false,
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         entryFileNames: "assets/js/[name]-[hash].js",
