@@ -48,7 +48,7 @@ export const MODEL_OVERRIDES_BY_FILE = {
   },
   "ship_in_clouds.glb": {
     label: "Ship In Clouds",
-    backgroundColor: "#faece4",
+    backgroundColor: "#7a818c",
     frame: { padding: 1.02, viewDirection: [-0.2, 0.18, -0.96] }
   },
   "terem.glb": {
