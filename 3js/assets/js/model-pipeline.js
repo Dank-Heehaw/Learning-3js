@@ -33,6 +33,8 @@ function toModelId(fileBaseName) {
 }
 
 function buildModelCatalog() {
+  // Catalog is generated from files present in /3d so adding/removing models
+  // does not require import edits in source code.
   const models = Object.entries(MODEL_URLS)
     .map(([sourcePath, url]) => {
       const fileName = sourcePath.split("/").at(-1) ?? "";
@@ -169,6 +171,7 @@ function applyMaterialOverrides(model, materialOverrides = DEFAULT_MODEL_MATERIA
         return;
       }
 
+      // Preserve authored values as baseline, then apply per-model multiplier.
       const baseIntensity = Number.isFinite(material.emissiveIntensity) ? material.emissiveIntensity : 1;
       material.emissiveIntensity = THREE.MathUtils.clamp(
         baseIntensity * emissiveIntensityMultiplier,

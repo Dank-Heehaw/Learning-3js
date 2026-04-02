@@ -69,6 +69,7 @@ export function createSceneCore(sceneRoot) {
   }
 
   function setRenderStyle(renderOverrides = {}) {
+    // Tone/bloom are configured per selected model for mood matching.
     renderer.toneMappingExposure = renderOverrides.exposure ?? 1;
     bloomPass.strength = renderOverrides.bloomStrength ?? 0.8;
     bloomPass.radius = renderOverrides.bloomRadius ?? 0.65;

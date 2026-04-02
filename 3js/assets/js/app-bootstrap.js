@@ -45,6 +45,7 @@ let currentModelId = MODEL_CATALOG[0]?.id ?? FALLBACK_SELECTION.id;
 let currentAnimationController = NOOP_ANIMATION_CONTROLLER;
 let previousFrameTimeMs = performance.now();
 
+// Accept #RGB and #RRGGBB to keep override editing lightweight.
 function parseHexColor(hex) {
   const normalized = hex.replace("#", "").trim();
   if (normalized.length === 3) {
@@ -81,6 +82,7 @@ function setHudTitleContrastColor(backgroundColor) {
     return;
   }
   const luminance = getRelativeLuminance(parsed);
+  // A single threshold keeps title legible across light/dark model backdrops.
   const titleColor = luminance > 0.35 ? "#0b1220" : "#ffffff";
   document.documentElement.style.setProperty("--hud-title-color", titleColor);
 }
@@ -233,7 +235,7 @@ function showControlsOverview(durationMs = 4200) {
 
 async function loadSelectedModel(modelId) {
   const selectedModel = getModelById(modelId);
-  const loadId = ++activeLoadId;
+  const loadId = ++activeLoadId; // Guards against stale async completion.
 
   // Ensure old mixers/actions are stopped before replacing scene content.
   currentAnimationController.stop();
