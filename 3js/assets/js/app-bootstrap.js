@@ -219,7 +219,17 @@ function setupResizeHandling() {
   const handleResize = () => {
     core.updateSize();
   };
+
+  // ResizeObserver catches layout changes that don't trigger `window.resize`
+  // (common on mobile when browser UI shows/hides).
+  if (typeof ResizeObserver !== "undefined") {
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(sceneRoot);
+  }
+
   window.addEventListener("resize", handleResize);
+  window.addEventListener("orientationchange", handleResize);
+
   handleResize();
 }
 

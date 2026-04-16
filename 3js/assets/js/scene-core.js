@@ -13,7 +13,7 @@ export function createSceneCore(sceneRoot) {
   camera.position.set(2.4, 1.6, 4.2);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio ?? 1, 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
   renderer.shadowMap.enabled = true;
@@ -46,7 +46,9 @@ export function createSceneCore(sceneRoot) {
   function updateSize() {
     const width = sceneRoot.clientWidth;
     const height = sceneRoot.clientHeight;
-    renderer.setSize(width, height, false);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio ?? 1, 2));
+    // Keep canvas CSS size in sync across browsers/devices.
+    renderer.setSize(width, height, true);
     composer.setSize(width, height);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
