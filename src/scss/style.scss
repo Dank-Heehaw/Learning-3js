@@ -237,6 +237,10 @@ body {
   transition: background-color 140ms ease-out, border-color 140ms ease-out;
 }
 
+.hud-btn-label {
+  display: inline-block;
+}
+
 .hud-btn:hover {
   background: rgb(51 65 85 / 46%);
   border-color: rgb(186 230 253 / 45%);
@@ -313,14 +317,36 @@ body {
     align-items: stretch;
     width: min(96vw, 35rem);
     bottom: max(0.8rem, env(safe-area-inset-bottom));
+    padding: 0.9rem 0.95rem;
+    gap: 0.75rem;
+  }
+
+  .hud-left {
+    min-width: 0;
   }
 
   .hud-actions {
-    justify-content: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: nowrap;
+    margin-left: 0;
   }
 
   .hud-actions > * {
-    flex: 1;
+    min-width: 0;
+  }
+
+  .hud-actions .model-picker {
+    flex: 1 1 auto;
+  }
+
+  #turntable-btn,
+  #reset-view-btn {
+    flex: 0 0 44px;
+    width: 44px;
+    padding: 0;
   }
 
   .model-picker-list {
@@ -331,6 +357,95 @@ body {
 
   .hud-title {
     font-size: 0.95rem;
+  }
+
+  .hud-model-name {
+    font-size: 0.95rem;
+  }
+
+  .hud-btn {
+    font-size: 0.95rem;
+    padding: 0.72rem 0.95rem;
+    min-height: 44px; // comfortable touch target
+    width: 100%;
+    text-align: center;
+  }
+
+  #turntable-btn,
+  #reset-view-btn {
+    padding: 0;
+  }
+
+  #reset-view-btn {
+    min-width: 0;
+  }
+
+  #reset-view-btn .hud-btn-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  #reset-view-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #reset-view-btn::before {
+    content: "↺";
+    display: block;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  #turntable-btn .hud-btn-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  #turntable-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #turntable-btn::before {
+    content: "⟲";
+    display: block;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .model-picker-option {
+    font-size: 0.95rem;
+    padding: 0.72rem 0.85rem;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 420px) {
+  .hud {
+    width: min(96vw, 26rem);
+  }
+
+  .hud-btn {
+    font-size: 1rem;
   }
 }
 
